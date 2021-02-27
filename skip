@@ -1,0 +1,57 @@
+#!/usr/bin/awk -f
+
+function usage() {
+	print "usage: skip from to" >"/dev/stderr"
+	error = 1
+	exit
+}
+
+function escape(str) {
+	gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", str)
+	return str
+}
+
+BEGIN {
+	if (ARGC != 3)
+		usage()
+	from = ARGV[1]
+	to = ARGV[2]
+	ARGC = 1
+}
+
+{
+	while (match($0, from)) {
+		f = RSTART - 1
+		if (match($0, to) == 0)
+			break
+		t = RSTART + RLENGTH
+		if (f < t)
+			$0 = substr($0, 1, f) substr($0, t)
+	}
+}
+
+$0 ~ from {
+	comment = 2
+	sub(from ".*", "")
+}
+
+comment && $0 ~ to {
+	comment = 0
+	sub(".*" to, "")
+}
+
+comment {
+	if (comment == 1)
+		next
+	else
+		comment = 1
+}
+
+{
+	print
+}
+
+END {
+	if (error)
+		exit 1
+}
