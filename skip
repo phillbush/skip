@@ -6,11 +6,6 @@ function usage() {
 	exit
 }
 
-function escape(str) {
-	gsub(/[\\.^$(){}\[\]|*+?]/, "\\\\&", str)
-	return str
-}
-
 BEGIN {
 	if (ARGC != 3)
 		usage()
